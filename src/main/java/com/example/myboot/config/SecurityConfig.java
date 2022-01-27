@@ -16,7 +16,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
 @Configuration
-@EnableWebSecurity  // включение безопасности
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
@@ -40,25 +40,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider());
-        ; // конфигурация для прохождения аутентификации
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin()
-             //   .loginPage("/login")                            // указываем страницу с формой логина
-                .successHandler(new LoginSuccessHandler())  //указываем логику обработки при логине
-                .loginProcessingUrl("/login")            // указываем action с формы логина
-                .usernameParameter("j_email")            // Указываем параметры логина и пароля с формы логина
+                .loginPage("/login")
+                .successHandler(new LoginSuccessHandler())
+                .loginProcessingUrl("/login")
+                .usernameParameter("j_email")
                 .passwordParameter("j_password")
-                .permitAll();                               // даем доступ к форме логина всем
+                .permitAll();
 
         http.logout()
                 .permitAll()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login?logout")
                 .and().csrf().disable();
-
 
         http
                 .authorizeRequests()

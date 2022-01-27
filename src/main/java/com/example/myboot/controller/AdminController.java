@@ -5,6 +5,8 @@ import com.example.myboot.model.User;
 import com.example.myboot.service.RoleService;
 import com.example.myboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ public class AdminController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String printAllUsers(Model model) {
+        model.addAttribute("admin",  SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         model.addAttribute("users", userService.getAllUsers());
         return "users/administrator";
     }
@@ -38,11 +41,9 @@ public class AdminController {
 
     @PostMapping()
     public String postNewUser(@ModelAttribute("user") User user,
-                              @RequestParam(required = false) String[] role) {
+                              @RequestParam(required = false, name = "ADMIN") String ADMIN, Model model,  Authentication authentication,
+                              @RequestParam(required = false, name = "USER") String USER) {
         Set<Role> sr = new HashSet<>();
-        for (String stringRoles : role) {
-            sr.add(roleService.getRoleByName(stringRoles));
-        }
         user.setRoles(sr);
         userService.save(user);
         return "redirect:/admin";

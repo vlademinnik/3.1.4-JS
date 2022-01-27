@@ -14,9 +14,6 @@ import java.util.Set;
 @Component
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    //хэндлер, содержащий в себе алгоритм действий при успешной аутентификации.
-    // Например, тут мы можем отправить пользователя с ролью админа на админку после логина,
-    // а с ролью юзер на главную страницу сайта и т.п.
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest,
                                         HttpServletResponse httpServletResponse,

@@ -40,15 +40,15 @@ public class UserDaoImpl implements UserDao {
     public void editUser(User user, long id) {
         User userEdit = getUserById(id);
         user.setId(id);
-//        userEdit.setUserName(user.getName());
         userEdit.setFirstName(user.getFirstName());
         userEdit.setLastName(user.getLastName());
+        userEdit.setAge(user.getAge());
+        userEdit.setRoles(user.getRoles());
         userEdit.setEmail(user.getEmail());
         userEdit.setPassword(passwordEncoder.encode(user.getPassword()));
         entityManager.merge(userEdit);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public User getUserByName(String email) {
         Query query = entityManager.createQuery("from User where email =?1");
