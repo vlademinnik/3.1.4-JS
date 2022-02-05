@@ -11,8 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Controller
 @RequestMapping("/admin")
@@ -30,21 +31,27 @@ public class AdminController {
     public String printAllUsers(Model model) {
         model.addAttribute("admin",  SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         model.addAttribute("users", userService.getAllUsers());
-        return "users/administrator";
+        return "admin/infoAboutUser";
     }
 
     @GetMapping("/new")
     public String newUser(Model model) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("admin", user);
         model.addAttribute("user", new User());
-        return "users/new_user";
+        return "admin/new";
     }
 
     @PostMapping()
     public String postNewUser(@ModelAttribute("user") User user,
-                              @RequestParam(required = false, name = "ADMIN") String ADMIN, Model model,  Authentication authentication,
-                              @RequestParam(required = false, name = "USER") String USER) {
-        Set<Role> sr = new HashSet<>();
-        user.setRoles(sr);
+                              @RequestParam("role") String[] role){
+        List<Role> sr = new ArrayList<>();
+        if (role != null) {
+            for (String roles : role) {
+                sr.add(roleService.getRoleByName(roles));
+            }
+            user.setRoles(sr);
+        }
         userService.save(user);
         return "redirect:/admin";
     }
@@ -52,14 +59,14 @@ public class AdminController {
     @GetMapping("/{id}/edit")
     public String upDate(@PathVariable("id") Long id, Model model) {
         model.addAttribute("user", userService.getUserById(id));
-        return "users/edit";
+        return "admin/edit";
     }
 
     @PostMapping("/{id}")
     public String updateUser(@ModelAttribute("user") User user,
                              @PathVariable("id") Long id,
-                             @RequestParam("role") String[] role) {
-        Set<Role> roles = new HashSet<>();
+                             @RequestParam(value = "role", required = false) String[] role) {
+        List<Role> roles = new ArrayList<>();
         for (String stringRoles : role) {
             roles.add(roleService.getRoleByName(stringRoles));
         }
@@ -69,8 +76,15 @@ public class AdminController {
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteUser(User user, @PathVariable("id") Long id) {
-        userService.deleteUser(user, id);
+    public String deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
         return "redirect:/admin";
+    }
+
+    @GetMapping("/info")
+    public String adminInfo(Model model) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("admin", userService.getUserByName(email));
+        return "admin/adminInfo";
     }
 }

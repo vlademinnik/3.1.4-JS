@@ -5,9 +5,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Array;
+import java.util.*;
 
 
 @Entity
@@ -39,8 +38,7 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn
             (name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-
-    private Set<Role> roles = new HashSet<>();
+    private List<Role> roles; //также поменял на List
 
     public User() {
     }
@@ -80,9 +78,10 @@ public class User implements UserDetails {
         return roles;
     }
 
-    public Set<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
+
 
     public String getRoleRole() {
         String roleName = "";
@@ -91,7 +90,16 @@ public class User implements UserDetails {
         }
         return roleName;
     }
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+
+    public void setRoles(List<Role> roles) {
+        this.roles = new ArrayList<>();
+        for (Role role : roles) {
+            if (role.getRole().contains("ROLE_ADMIN")) {
+                this.roles.add(new Role("ROLE_ADMIN"));
+            }
+            if (role.getRole().contains("ROLE_USER")) {
+                this.roles.add(new Role("ROLE_USER"));
+            }
+        }
     }
 }
